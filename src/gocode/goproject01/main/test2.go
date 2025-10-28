@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
 
 func main() {
 	//str1 := "this is str"
@@ -49,4 +52,40 @@ func main() {
 			fmt.Println(arr[i][j])
 		}
 	}
+	//切片选择排序
+	var sliceA = []int{8, 4, 6, 7, 1, 3, 9}
+	for i := 0; i < len(sliceA); i++ {
+		for j := i + 1; j < len(sliceA); j++ {
+			if sliceA[i] > sliceA[j] {
+				temp := sliceA[i]
+				sliceA[i] = sliceA[j]
+				sliceA[j] = temp
+			}
+		}
+	}
+	fmt.Println(sliceA)
+	//切片冒泡排序
+	var sliceB = []int{6, 1, 3, 8, 7, 9, 5}
+	for i := 0; i < len(sliceB); i++ {
+		for j := i + 1; j < len(sliceB); j++ {
+			if sliceB[i] > sliceB[j] {
+				temp := sliceB[i]
+				sliceB[i] = sliceB[j]
+				sliceB[j] = temp
+			}
+		}
+	}
+	fmt.Println(sliceB)
+
+	//sort包排序
+	intlist := []int{2, 9, 6, 4, 7, 8, 3, 4}
+	float64list := []float64{3.12, 5.36, 5.12, 4.29, 6.17}
+	stringlist := []string{"a", "d", "v", "t", "w", "c", "h", "z"}
+	sort.Ints(intlist)
+	sort.Float64s(float64list)
+	sort.Strings(stringlist)
+	fmt.Println(intlist)
+	fmt.Println(float64list)
+	fmt.Println(stringlist)
+
 }
