@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"sort"
+	"strings"
 )
 
 func main() {
@@ -88,4 +89,101 @@ func main() {
 	fmt.Println(float64list)
 	fmt.Println(stringlist)
 
+	//map的使用
+	ScoreMap := make(map[string]int, 8)
+	ScoreMap["张三"] = 90
+	ScoreMap["王五"] = 100
+	ScoreMap["王二麻子"] = 92
+	fmt.Println(ScoreMap)
+	fmt.Println(len(ScoreMap)) //查看长度
+
+	//判断某个健是否存在
+	v, ok := ScoreMap["张二"]
+	if ok {
+		fmt.Println(v)
+	} else {
+		fmt.Println("此用户不存在")
+	}
+	//map遍历与删除键值对
+	for k1, v := range ScoreMap {
+		fmt.Println(k1, v)
+	}
+	delete(ScoreMap, "张三")
+	for k2 := range ScoreMap {
+		fmt.Println(k2)
+	}
+	//map类型的切片，作用允许放多个数据
+	var mapSlice = make([]map[string]string, 3)
+	for k, v := range mapSlice {
+		fmt.Println(k, v)
+	}
+	if mapSlice[0] == nil {
+		mapSlice[0] = make(map[string]string)
+		mapSlice[0]["username"] = "张三三"
+		mapSlice[0]["password"] = "123458"
+		mapSlice[0]["age"] = "56"
+	}
+	if mapSlice[1] == nil {
+		mapSlice[1] = make(map[string]string)
+		mapSlice[1]["username"] = "李四四"
+		mapSlice[1]["password"] = "12345889"
+		mapSlice[1]["age"] = "86"
+	}
+	for _, v1 := range mapSlice {
+		//fmt.Println(k3, v1)
+		for _, v2 := range v1 {
+			fmt.Println(v2)
+		}
+	}
+	//如果我们想在map对象中存放一系列的属性的时候，我们就可以把map类型的值定义为切片
+	var userHobby = make(map[string][]string)
+	userHobby["hobby"] = []string{
+		"吃饭",
+		"睡觉",
+		"追剧",
+	}
+	userHobby["work"] = []string{
+		"php",
+		"python",
+		"java",
+	}
+	fmt.Println(userHobby)
+	for _, v2 := range userHobby {
+		//fmt.Println(k4, v2)
+		for k4, v3 := range v2 {
+			fmt.Println(k4, v3)
+		}
+	}
+	//map排序
+	map1 := make(map[int]int)
+	map1[0] = 1
+	map1[8] = 27
+	map1[3] = 38
+	map1[7] = 40
+	map1[6] = 523
+	fmt.Println(map1)
+	for k5, v4 := range map1 {
+		fmt.Println(k5, v4)
+	}
+
+	//按照map的key升序输出key=>value
+	//先把map的key放在切片里
+	var keySlice []int
+	for k5 := range map1 {
+		keySlice = append(keySlice, k5)
+	}
+	fmt.Println(keySlice)
+	sort.Ints(keySlice)
+	for _, v5 := range keySlice {
+		fmt.Println(v5, map1[v5])
+	}
+	//统计一个字符串中每个单词出现的次数
+	var str = "how do you do"
+	var strSlice = strings.Split(str, " ") //转化为切片类型
+	fmt.Println(strSlice)
+	var strMap = make(map[string]int)
+	for _, v6 := range strSlice {
+		strMap[v6]++
+	}
+	fmt.Println(strMap)
 }
