@@ -6,6 +6,72 @@ import (
 	"strings"
 )
 
+func intSum(x ...int) int {
+	sum := 0
+	fmt.Printf("x的类型为：%T\n", x)
+	for _, v := range x {
+		sum += v
+	}
+	return sum
+}
+
+func floatSum(x float32, y ...float32) float32 {
+	sum := float32(0)
+	sum = sum + x
+	fmt.Printf("y的类型为%T\n", y)
+	for _, v := range y {
+		sum = sum + v
+	}
+	return sum
+}
+
+func mapSort(x map[string]string) string {
+	var keys []string
+	for k := range x {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	var str string
+	for _, v := range keys {
+		str += fmt.Sprintf("%v=>%v  ", v, x[v])
+	}
+	return str
+}
+
+// 定义函数类型
+type clac func(int, int) int //凡是满足func(int, int) int这个条件的函数都是calc类型，之后函数名都能赋值给clac类型的变量
+
+func add(x, y int) int {
+	return x + y
+}
+
+func sub(x, y int) int {
+	return x - y
+}
+
+// 高阶函数
+func hh(x, y int, op func(int, int) int) int {
+	return op(x, y)
+}
+
+// 返回函数
+type clacType func(int, int) int
+
+func do(o string) clacType {
+	switch o {
+	case "+":
+		return add
+	case "-":
+		return sub
+	case "*":
+		return func(x, y int) int {
+			return x * y
+		}
+
+	default:
+		return nil
+	}
+}
 func main() {
 	//str1 := "this is str"
 	//str2 := "t"
@@ -186,4 +252,55 @@ func main() {
 		strMap[v6]++
 	}
 	fmt.Println(strMap)
+	//函数
+	var a int
+	a = intSum(100, 56, 35, 89, 46, 45, 666)
+	fmt.Println(a)
+
+	var b float32
+	b = floatSum(3.14, 5.69, 3.28, 6.23)
+	fmt.Println(b)
+	//函数案例 对k进行升序排序  方法先将k转化为切片
+	var B = map[string]string{
+		"userName": "lihua",
+		"age":      "20",
+		"sex":      "man",
+		"class":    "five",
+	}
+	var A string
+	A = mapSort(B)
+	fmt.Println(A)
+
+	//定义函数类型
+	var c clac
+	c = add
+	fmt.Printf("%T\n", c)
+	fmt.Println(c(15, 5))
+
+	d := sub
+	fmt.Printf("%T\n", d)
+	fmt.Println(d(10, 3))
+	//高阶函数的调用
+	e := hh(10, 30, add)
+	fmt.Println(e)
+	//匿名函数
+	f := hh(31, 20, func(x, y int) int {
+		return x * y
+	})
+	fmt.Println(f)
+	//返回函数的调用
+	g := do("+")
+	fmt.Println(g(30, 56))
+	//匿名函数：就是没有函数名的函数，它可以不同与普通函数，它可以在普通函数中定义运行
+	func() {
+		fmt.Println("hello world")
+	}()
+	//加括号是为执行此函数
+	var fn = func(x, y int) int {
+		return x + y
+	}
+	fmt.Println(fn(1, 2))
+	func(x, y int) {
+		fmt.Println(x * y)
+	}(10, 20)
 }
