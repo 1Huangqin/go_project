@@ -1,9 +1,13 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
+	T "project01/calc" //T是project01/calc的别名
 	"sort"
 	"strings"
+	"time"
 )
 
 func intSum(x ...int) int {
@@ -72,6 +76,144 @@ func do(o string) clacType {
 		return nil
 	}
 }
+
+func func1(n int) int {
+	if n > 1 {
+		return n + func1(n-1)
+	} else {
+		return 1
+	}
+}
+
+// 闭包：可以让一个变量常驻内存也不会污染全局 它的写法就是：函数里面嵌套一个函数，最后返回里面的函数
+func func2() func(y int) int {
+	i := 10
+	return func(y int) int {
+		i += y
+		return i
+	}
+}
+
+// defer
+// (a int)，这是命名返回参数,命名返回参数会在函数启动时被初始化为对应类型的零值,
+func func3() (a int) { //整个函数体内 a 都是同一个变量,所以defer 执行会直接修改返回值区域中的 a
+	defer func() {
+		a++
+	}()
+	return a
+}
+
+// 匿名返回值
+func func4() int {
+	var a int //a=0  局部变量，与返回值无关
+	defer func() {
+		a++
+	}()
+	return a
+}
+
+// 处理错误
+// panic可以在任何地方引发，但 recover 只有在 defer 调用的函数中有效 只用panic会使代码到此处之后下面不会在接着执行，所以与 recover 配套使用
+// recover 可将程序恢复回来，继续往后执行
+func func5(a int, b int) int {
+	defer func() {
+		err := recover()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
+	var c int
+	c = a / b
+	return c
+}
+
+func Filename(filename string) error {
+	if filename == "main.go" {
+		return nil
+	}
+	return errors.New("文件名错误")
+}
+func func6() {
+	defer func() {
+		var err = recover() //这里会捕获到 panic(err) 抛出的错误
+		if err != nil {
+			fmt.Println("给管理员发邮件")
+			fmt.Println("错误信息:", err)
+		}
+	}()
+	var err = Filename("xxx.go") // 返回错误
+	if err != nil {
+		panic(err) // 触发恐慌，跳转到 defer 中的 recover
+	}
+	fmt.Println("继续执行") // 这行不会执行，因为 panic 中断了执行 即当 panic(err) 被调用时，当前函数的执行会立即停止
+}
+
+// 定义结构体
+type Person struct {
+	Name string
+	Age  int
+	Sex  string
+}
+
+// 结构体方法和接收者
+func (q Person) PersonInformation() {
+	fmt.Println(q.Name, q.Age)
+}
+
+// 修改结构体上的数据
+func (w *Person) SetInfor(Name string, Age int) {
+	w.Name = Name
+	w.Age = Age
+}
+
+// 结构体字段类型
+type Info struct {
+	Name    string
+	Age     int
+	Hobby   []string
+	map1    map[string]string
+	address address
+}
+
+// 结构体的嵌套
+type address struct {
+	Street string
+	City   string
+}
+
+// 结构体的继承 也是属于嵌套
+type Animal struct {
+	Name string
+}
+
+func (a *Animal) run() {
+	fmt.Printf("%s会运动\n", a.Name) //%s 就是一个占位标记，告诉 Printf 函数："在这里插入后面提供的字符串参数"。
+}
+
+type Dog struct {
+	Age int
+	*Animal
+}
+
+func (d *Dog) wang() {
+	fmt.Printf("%s会汪汪汪~\n", d.Name)
+}
+
+// 结构体转Json序列化 & 结构体标签Tag
+type Student struct {
+	ID     int `json:"id"` //结构体标签Tag 作用：通过指定tag实现json序列化该字段时的value
+	Name   string
+	Gender string `json:"gender"`
+	Age    int
+	//私有属性不能被 json 包访问，公有属性才行 name首字母大写为公有属性 首字母小写为私有属性
+}
+
+// 嵌套结构体和 JSON 序列化反序列化
+type Class struct {
+	Title   string
+	Student []Student
+}
+
 func main() {
 	//str1 := "this is str"
 	//str2 := "t"
@@ -303,4 +445,194 @@ func main() {
 	func(x, y int) {
 		fmt.Println(x * y)
 	}(10, 20)
+	//函数的递归 自己调用自己
+	fmt.Println(func1(100))
+	//闭包
+	var fn2 = func2()
+	fmt.Println(fn2(10))
+	fmt.Println(fn2(20))
+	//defer 遇到它从下往上执行
+	fmt.Println(func3())
+	fmt.Println(func4())
+	//错误处理
+	fmt.Println(func5(10, 0))
+	fmt.Println("结束")
+	func6()
+	//Format方法格式化输出日期字符串 2006.1.2 15：04
+	now := time.Now()
+	fmt.Println(now)
+	//24小时制
+	fmt.Println(now.Format("2006/01/02 15:04:05"))
+	//12小时制
+	fmt.Println(now.Format("2006/01/02 03:04:05"))
+	fmt.Println(now.Format("2006/01/02"))
+	//获取当前时间戳  什么是时间戳：自1970年1月1日至当前时间的总毫秒数
+	time1 := now.Unix() //获取当前时间戳
+	fmt.Println(time1)
+	time2 := now.UnixNano() //获取当前纳秒时间戳
+	fmt.Println(time2)
+	//时间戳转换日期 now.Forma()
+	var time3 int64 = 1762157796 //秒时间戳
+	t := time.Unix(time3, 0)     //秒
+	fmt.Println(t.Format("2006-01-02 15:04:05"))
+	var time4 int64 = 1762157870458273500 //纳秒时间戳
+	ti := time.Unix(0, time4)
+	fmt.Println(ti.Format("2006-01-02 15:04:05"))
+	//日期转化为时间戳   time.ParseInLocation函数将字符串解析为时间对象
+	t1 := "2025-11-03 16:16:36"                                 //目前t1还是一个字符串类型 即 t1还是一个要解析的时间字符串
+	timeStandar := "2006-01-02 15:04:05"                        //时间格式模板
+	tim, _ := time.ParseInLocation(timeStandar, t1, time.Local) //time.Local使用本地时区
+	fmt.Println(tim.Unix())
+	//时间间隔  掌握time 包中定义的时间间隔类型 例如：time.Duration 表示 1 纳秒，time.Second 表示 1 秒
+	//时间操作函数
+	//注：
+	//方法	参数类型	返回值类型	用途
+	//Add()	Duration	Time	在时间点上加减时间段
+	//Sub()	Time	Duration	计算两个时间点之间的时间差
+	later := now.Add(time.Hour * 2).Format("15:04:05") //当前时间加2个小时后的时间
+	fmt.Println(later)
+	before := now.Add(-time.Minute * 3).Format("15:04:05") //当前时间减3分钟后的时间
+	fmt.Println(before)
+	//Before()方法 返回的是bool类型
+	t2 := "2025-11-03 16:16:36"
+	t3 := "2025-11-03 17:16:36"
+	t4 := "2025-11-03 19:16:36"
+	stamp1, _ := time.ParseInLocation(timeStandar, t2, time.Local)
+	stamp2, _ := time.ParseInLocation(timeStandar, t3, time.Local)
+	stamp3, _ := time.ParseInLocation(timeStandar, t4, time.Local)
+	fmt.Println(stamp1.Before(stamp2)) //表示stamp1时间点在stamp2时间点之前 true
+	fmt.Println(stamp2.After(stamp3))  //true
+	fmt.Println(stamp3.Equal(stamp1))  //false
+	//实际开发
+	t5 := "2025-11-04 17:16:36"
+	stamp4, _ := time.ParseInLocation(timeStandar, t5, time.Local)
+	if now.Before(stamp4) {
+		fmt.Println("还有时间工作")
+	} else {
+		fmt.Println("时间结束！")
+	}
+	//定时器
+	h := time.NewTicker(time.Second * 2) //定义定时器并将定时器命名为h
+	n := 0
+	for i := range h.C {
+		fmt.Printf("计时开始：%v\n", i.Format("15:04:05"))
+		n++
+		if n > 5 {
+			h.Stop()
+			fmt.Println("计时结束")
+			break
+		}
+	}
+	//new()方法给指针变量分配内存空间
+	p := new(int)
+	*p = 100
+	fmt.Println(*p)
+	//定义结构体
+	var p1 Person
+	p1.Name = "lihua"
+	p1.Age = 20
+	p1.Sex = "男"
+	fmt.Println(p1)
+	var p2 = Person{
+		Name: "lihuahua",
+		Age:  30,
+		Sex:  "女",
+	}
+	fmt.Println(p2)
+	//结构体方法和接收者
+	var q = Person{
+		Name: "wangwu",
+		Age:  30,
+		Sex:  "女",
+	}
+	q.PersonInformation()
+	//修改结构体内信息
+	q.SetInfor("李三", 6)
+	q.PersonInformation()
+	//结构体字段类型
+	var q2 Info
+	q2.Name = "李二"
+	q2.Age = 37
+	q2.Hobby = make([]string, 3, 6) //切片Slice 与 map 是引用类型需要分配空间后才可以复制
+	q2.Hobby[0] = "写代码"
+	q2.Hobby[1] = "追剧"
+	q2.Hobby[2] = "睡觉"
+	q2.map1 = make(map[string]string)
+	q2.map1["address"] = "北京"
+	q2.map1["phone"] = "15349756"
+	//结构体的嵌套
+	q2.address.Street = "一曼路"
+	q2.address.City = "宜宾"
+	fmt.Printf("%#v\n", q2) //%#v代表详细输出
+	d1 := &Dog{
+		Age: 3,
+		Animal: &Animal{
+			Name: "阿奇",
+		},
+	}
+	d1.run()
+	d1.wang()
+	//结构体对象转Json序列化
+	var S = Student{
+		ID:     1,
+		Name:   "琴子",
+		Gender: "女",
+		Age:    20,
+	}
+	fmt.Printf("%#v\n", S)
+	var s1, _ = json.Marshal(S) //Marshal函数返回两个值：JSON数据字节和错误信息  _表示忽略错误返回值
+	fmt.Printf("%#v\n", s1)
+	var s2 = string(s1) //将字节数组转换为字符串
+	fmt.Println(s2)     //打印JSON字符串
+	//Json字符串转换成结构体对象
+	var jsonStr = `{"ID":1,"Name":"琴子","Gender":"女","Age":20}` //jsonStr是Json字符串 数据引入不用"" 否则影响{} 这里我们用反引号``来引入数据
+	var student Student
+	var err = json.Unmarshal([]byte(jsonStr), &student) //[]byte(jsonStr)这里将jsonStr强制转换成byte类型的切片 &student 注意这里必须传入地址因为我们是要进行在结构体Student中修改数据
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Printf("%#v", student)
+	fmt.Println(student.Name, student.ID)
+	//嵌套结构体和Json序列化
+	s3 := Class{
+		Title:   "001",
+		Student: make([]Student, 0),
+	}
+	for i := 0; i <= 5; i++ {
+		s4 := Student{
+			ID:     i,
+			Name:   fmt.Sprintf("stu_%d", i), //fmt.Sprintf字符串的拼接 将stu与i拼接成一个字符串
+			Gender: "男",
+			Age:    20,
+		}
+		s3.Student = append(s3.Student, s4)
+	}
+	strBytes, err := json.Marshal(s3)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(string(strBytes))
+	}
+	//嵌套结构体和Json反序列化
+	s5 := `{"Title":"001","Student":[{"id":0,"Name":"stu_0","gender":"男","Age":20},{"id":1,"Name":"stu_1","gender":"男","Age":20},{"id":2,"Name":"stu_2","gender":"男","Age":20},{"id":3,"Name":"stu_3","gender":"男","Age":20},{"id":4,"Name":"stu_4","gender":"男","Age":20},{"id":5,"Name":"stu_5","gender":"男","Age":20}]}`
+	var s6 = &Class{}
+	err = json.Unmarshal([]byte(s5), s6) //这里s6不用加& 因为var s6 = &Class{}已经s6已经代表了指针
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Printf("%#v", s6)
+		fmt.Println(s6.Title)
+	}
+	sum1 := T.Add1(10, 22)
+	fmt.Println(sum1)
+	sum2 := T.Sub1(10, 2)
+	fmt.Println(sum2)
+	fmt.Println(T.Age)
+	sum3 := T.Mul1(10, 2) //T.Mul1(10, 2)就等于calc.Mul1(10, 2)
+	fmt.Println(sum3)
+}
+
+// main包中的init函数 优先于main函数 即init先执行输出之后main函数才执行输出
+func init() {
+	fmt.Println("main.init....")
 }
